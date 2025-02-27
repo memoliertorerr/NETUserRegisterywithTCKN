@@ -1,0 +1,6 @@
+@UserRegisteryNET_HostAddress = http://localhost:5105
+
+GET {{UserRegisteryNET_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
