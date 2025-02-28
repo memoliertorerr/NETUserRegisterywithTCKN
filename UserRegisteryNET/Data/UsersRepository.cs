@@ -6,6 +6,7 @@ namespace UserRegisteryNET.Data
 {
     internal static  class UsersRepository
     {
+
         internal async static Task<List<User>> GetUsersAsync()
         {
             using (var db = new AppDBContext()) // Garbage collection için using kullandım
@@ -47,10 +48,22 @@ namespace UserRegisteryNET.Data
             {
                 try
                 {
+                    if (!TCKNValidator.IsValidTCKN(userToCreate.TCKN))
+                    {
+                        Console.WriteLine("Error: Invalid TCKN format.");
+                        return false;
+                    }
+
                     await db.Users.AddAsync(userToCreate);
 
                     return await db.SaveChangesAsync() >= 1; // 1'den büyükse true döner ancak hatalı olabilir (aynı anda birden fazla işlem olursa)
 
+                }
+                catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE constraint failed") == true)
+                {
+                    // TCKN unique olmalı, olmadığında gelen erroru handle edelim
+                    Console.WriteLine("Error: A user with this TCKN already exists.");
+                    return false;
                 }
                 catch (Exception e)
                 {
